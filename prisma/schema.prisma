@@ -1,0 +1,198 @@
+// ============================================
+// WORKSHOP SERVICE - PRISMA SCHEMA
+// AutoDiag Project
+// ============================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// AGGREGATE ROOT: Workshop
+// ============================================
+model Workshop {
+  id      String  @id @default(uuid())
+  ownerId String  // Referencia a User (Auth Service) con role WORKSHOP_ADMIN
+  
+  // BusinessInfo VO
+  name        String
+  description String?  @db.Text
+  email       String
+  phone       String
+  logoUrl     String?
+  photoUrls   String[] // Array de URLs de fotos del taller
+  
+  // Location VO
+  addressStreet String
+  addressNumber String
+  addressColony String
+  addressCity   String
+  addressState  String
+  addressZip    String
+  addressCountry String @default("Mexico")
+  latitude      Decimal @db.Decimal(10, 8)
+  longitude     Decimal @db.Decimal(11, 8)
+  
+  // Rating VO
+  ratingAverage Decimal @default(0) @db.Decimal(3, 2) // 0.00 - 5.00
+  ratingCount   Int     @default(0)
+  
+  // PriceRange VO
+  priceRange PriceRange @default(MODERATE)
+  
+  // Status
+  isVerified Boolean  @default(false) // Aprobado por admin
+  isActive   Boolean  @default(true)
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Child Entities (Relationships)
+  specialties WorkshopSpecialty[]
+  schedules   WorkshopSchedule[]
+  reviews     Review[]
+  
+  @@index([ownerId])
+  @@index([latitude, longitude]) // Para búsquedas geoespaciales
+  @@index([isVerified, isActive])
+  @@map("workshops")
+}
+
+// ============================================
+// CHILD ENTITY: WorkshopSpecialty (NUEVA)
+// ============================================
+model WorkshopSpecialty {
+  id         String  @id @default(uuid())
+  workshopId String
+  workshop   Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+  
+  // SpecialtyType VO
+  specialtyType  SpecialtyType
+  specialtyValue String  // Ej: "Toyota", "Transmisiones automáticas"
+  
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  
+  @@index([workshopId])
+  @@index([specialtyType, specialtyValue])
+  @@map("workshop_specialties")
+}
+
+// ============================================
+// CHILD ENTITY: WorkshopSchedule (NUEVA)
+// ============================================
+model WorkshopSchedule {
+  id         String   @id @default(uuid())
+  workshopId String
+  workshop   Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+  
+  // DayOfWeek VO
+  dayOfWeek DayOfWeek
+  
+  // TimeRange VO
+  openTime  String?  // HH:mm formato 24h (ej: "08:00")
+  closeTime String?  // HH:mm formato 24h (ej: "18:00")
+  
+  isClosed Boolean  @default(false)  // Si está cerrado ese día
+  notes    String?  // Notas especiales
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@unique([workshopId, dayOfWeek])
+  @@index([workshopId])
+  @@map("workshop_schedules")
+}
+
+// ============================================
+// CHILD ENTITY: Review
+// ============================================
+model Review {
+  id            String   @id @default(uuid())
+  workshopId    String
+  workshop      Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+  userId        String   // Propietario que hizo la review
+  appointmentId String?  // Referencia a cita (para verificación)
+  
+  // RatingBreakdown VO
+  overallRating Int @db.SmallInt // 1-5
+  qualityRating Int @db.SmallInt // 1-5
+  priceRating   Int @db.SmallInt // 1-5
+  timeRating    Int @db.SmallInt // 1-5
+  serviceRating Int @db.SmallInt // 1-5
+  
+  // Comment VO
+  comment String? @db.Text
+  
+  // Sentiment VO (generado por ML - Diagnosis Service)
+  sentimentType         SentimentType?
+  sentimentConfidence   Decimal?       @db.Decimal(4, 3) // 0.000 - 1.000
+  sentimentModelVersion String?
+  
+  // Verification
+  isVerified Boolean @default(false)
+  
+  // Moderation
+  isReported        Boolean @default(false)
+  reportReason      String?
+  moderationStatus  ModerationStatus @default(PUBLISHED)
+  
+  // Workshop response
+  workshopResponse String?   @db.Text
+  respondedAt      DateTime?
+  
+  // Engagement
+  helpfulCount Int @default(0)
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([workshopId])
+  @@index([userId])
+  @@index([moderationStatus])
+  @@map("reviews")
+}
+
+// ============================================
+// ENUMS (Value Objects)
+// ============================================
+enum PriceRange {
+  BUDGET       // $
+  MODERATE     // $$
+  PREMIUM      // $$$
+}
+
+enum SpecialtyType {
+  BRAND_SPECIFIC    // Marca específica (ej: Toyota)
+  SERVICE_SPECIFIC  // Servicio específico (ej: Transmisiones)
+  GENERAL          // General
+}
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+enum SentimentType {
+  POSITIVE
+  NEUTRAL
+  NEGATIVE
+}
+
+enum ModerationStatus {
+  PUBLISHED
+  IN_REVIEW
+  HIDDEN
+}
