@@ -1,198 +1,213 @@
-// ============================================
-// WORKSHOP SERVICE - PRISMA SCHEMA
-// AutoDiag Project
-// ============================================
+// This is your Prisma schema file for Workshop Service
+// Learn more: https://pris.ly/d/prisma-schema
 
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  extensions = [postgis]
 }
 
 // ============================================
-// AGGREGATE ROOT: Workshop
+// WORKSHOP SERVICE MODELS
 // ============================================
+
 model Workshop {
-  id      String  @id @default(uuid())
-  ownerId String  // Referencia a User (Auth Service) con role WORKSHOP_ADMIN
+  id          String   @id @default(uuid())
+  ownerId     String   // Foreign key to Auth Service (WORKSHOP_ADMIN)
   
-  // BusinessInfo VO
+  // Basic info
   name        String
-  description String?  @db.Text
-  email       String
+  description String?
   phone       String
-  logoUrl     String?
-  photoUrls   String[] // Array de URLs de fotos del taller
+  email       String?
+  website     String?
   
-  // Location VO
-  addressStreet String
-  addressNumber String
-  addressColony String
-  addressCity   String
-  addressState  String
-  addressZip    String
-  addressCountry String @default("Mexico")
-  latitude      Decimal @db.Decimal(10, 8)
-  longitude     Decimal @db.Decimal(11, 8)
+  // Address
+  street      String
+  city        String
+  state       String
+  zipCode     String
+  country     String   @default("Mexico")
   
-  // Rating VO
-  ratingAverage Decimal @default(0) @db.Decimal(3, 2) // 0.00 - 5.00
-  ratingCount   Int     @default(0)
+  // Geolocation (PostGIS)
+  latitude    Float
+  longitude   Float
+  // location    Unsupported("geography(Point, 4326)")? // PostGIS geography type
   
-  // PriceRange VO
-  priceRange PriceRange @default(MODERATE)
+  // Business hours
+  openingTime String?  // "08:00"
+  closingTime String?  // "18:00"
+  workingDays String[] // ["Monday", "Tuesday", ...]
+  
+  // Specialties
+  specialties String[] // ["Transmisión", "Frenos", "Motor", etc.]
+  brands      String[] // ["Toyota", "Honda", "Nissan", etc.]
+  
+  // Pricing (indicativo)
+  priceRange  PriceRange @default(MEDIUM)
+  
+  // Ratings
+  averageRating Float   @default(0)
+  totalReviews  Int     @default(0)
+  
+  // Capacity
+  dailyCapacity Int     @default(10) // Número de citas por día
   
   // Status
-  isVerified Boolean  @default(false) // Aprobado por admin
-  isActive   Boolean  @default(true)
+  isActive      Boolean @default(true)
+  isVerified    Boolean @default(false)
+  
+  // Media
+  logo          String?
+  photos        String[] // Array of photo URLs
+  
+  // Relationships
+  availability  WorkshopAvailability[]
+  reviews       Review[]
   
   // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  // Child Entities (Relationships)
-  specialties WorkshopSpecialty[]
-  schedules   WorkshopSchedule[]
-  reviews     Review[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
   
   @@index([ownerId])
-  @@index([latitude, longitude]) // Para búsquedas geoespaciales
-  @@index([isVerified, isActive])
+  @@index([city, state])
+  // @@index([location], type: Gist) // PostGIS spatial index
   @@map("workshops")
 }
 
-// ============================================
-// CHILD ENTITY: WorkshopSpecialty (NUEVA)
-// ============================================
-model WorkshopSpecialty {
-  id         String  @id @default(uuid())
-  workshopId String
-  workshop   Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
-  
-  // SpecialtyType VO
-  specialtyType  SpecialtyType
-  specialtyValue String  // Ej: "Toyota", "Transmisiones automáticas"
-  
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  
-  @@index([workshopId])
-  @@index([specialtyType, specialtyValue])
-  @@map("workshop_specialties")
+enum PriceRange {
+  LOW
+  MEDIUM
+  HIGH
+  PREMIUM
 }
 
 // ============================================
-// CHILD ENTITY: WorkshopSchedule (NUEVA)
+// WORKSHOP AVAILABILITY
 // ============================================
-model WorkshopSchedule {
-  id         String   @id @default(uuid())
-  workshopId String
-  workshop   Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
-  
-  // DayOfWeek VO
-  dayOfWeek DayOfWeek
-  
-  // TimeRange VO
-  openTime  String?  // HH:mm formato 24h (ej: "08:00")
-  closeTime String?  // HH:mm formato 24h (ej: "18:00")
-  
-  isClosed Boolean  @default(false)  // Si está cerrado ese día
-  notes    String?  // Notas especiales
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  @@unique([workshopId, dayOfWeek])
-  @@index([workshopId])
-  @@map("workshop_schedules")
-}
 
-// ============================================
-// CHILD ENTITY: Review
-// ============================================
-model Review {
-  id            String   @id @default(uuid())
-  workshopId    String
-  workshop      Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
-  userId        String   // Propietario que hizo la review
-  appointmentId String?  // Referencia a cita (para verificación)
+model WorkshopAvailability {
+  id          String   @id @default(uuid())
+  workshopId  String
+  workshop    Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
   
-  // RatingBreakdown VO
-  overallRating Int @db.SmallInt // 1-5
-  qualityRating Int @db.SmallInt // 1-5
-  priceRating   Int @db.SmallInt // 1-5
-  timeRating    Int @db.SmallInt // 1-5
-  serviceRating Int @db.SmallInt // 1-5
+  // Date
+  date        DateTime @db.Date
   
-  // Comment VO
-  comment String? @db.Text
+  // Time slots
+  startTime   String   // "08:00"
+  endTime     String   // "09:00"
   
-  // Sentiment VO (generado por ML - Diagnosis Service)
-  sentimentType         SentimentType?
-  sentimentConfidence   Decimal?       @db.Decimal(4, 3) // 0.000 - 1.000
-  sentimentModelVersion String?
+  // Capacity
+  maxAppointments Int  @default(1)
+  bookedCount     Int  @default(0)
   
-  // Verification
-  isVerified Boolean @default(false)
-  
-  // Moderation
-  isReported        Boolean @default(false)
-  reportReason      String?
-  moderationStatus  ModerationStatus @default(PUBLISHED)
-  
-  // Workshop response
-  workshopResponse String?   @db.Text
-  respondedAt      DateTime?
-  
-  // Engagement
-  helpfulCount Int @default(0)
+  // Status
+  isAvailable Boolean  @default(true)
   
   // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@unique([workshopId, date, startTime])
+  @@index([workshopId, date])
+  @@map("workshop_availability")
+}
+
+// ============================================
+// REVIEWS
+// ============================================
+
+model Review {
+  id          String   @id @default(uuid())
+  workshopId  String
+  workshop    Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+  
+  userId      String   // Foreign key to Auth Service
+  appointmentId String? // Foreign key to Appointment Service
+  
+  // Rating (1-5 stars)
+  overallRating   Int // 1-5
+  qualityRating   Int // 1-5
+  priceRating     Int // 1-5
+  timelinessRating Int // 1-5
+  serviceRating   Int // 1-5
+  
+  // Review content
+  comment     String?
+  
+  // Response from workshop
+  response    String?
+  respondedAt DateTime?
+  
+  // Verification
+  isVerified  Boolean  @default(false)
+  
+  // Status
+  isReported  Boolean  @default(false)
+  reportReason String?
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
   
   @@index([workshopId])
   @@index([userId])
-  @@index([moderationStatus])
+  @@index([appointmentId])
   @@map("reviews")
 }
 
 // ============================================
-// ENUMS (Value Objects)
+// SERVICE CATEGORIES
 // ============================================
-enum PriceRange {
-  BUDGET       // $
-  MODERATE     // $$
-  PREMIUM      // $$$
+
+model ServiceCategory {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  icon        String?
+  
+  // Average pricing
+  averagePrice Float?
+  priceUnit    String?  // "por hora", "por servicio", etc.
+  
+  // Popular services
+  services    Service[]
+  
+  // Status
+  isActive    Boolean  @default(true)
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("service_categories")
 }
 
-enum SpecialtyType {
-  BRAND_SPECIFIC    // Marca específica (ej: Toyota)
-  SERVICE_SPECIFIC  // Servicio específico (ej: Transmisiones)
-  GENERAL          // General
-}
-
-enum DayOfWeek {
-  MONDAY
-  TUESDAY
-  WEDNESDAY
-  THURSDAY
-  FRIDAY
-  SATURDAY
-  SUNDAY
-}
-
-enum SentimentType {
-  POSITIVE
-  NEUTRAL
-  NEGATIVE
-}
-
-enum ModerationStatus {
-  PUBLISHED
-  IN_REVIEW
-  HIDDEN
+model Service {
+  id          String   @id @default(uuid())
+  categoryId  String
+  category    ServiceCategory @relation(fields: [categoryId], references: [id])
+  
+  name        String
+  description String?
+  
+  // Pricing
+  estimatedPrice Float?
+  duration       Int?    // Duración estimada en minutos
+  
+  // Status
+  isActive    Boolean  @default(true)
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([categoryId])
+  @@map("services")
 }
