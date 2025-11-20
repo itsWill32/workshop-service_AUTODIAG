@@ -20,12 +20,14 @@ model Workshop {
   description   String?
   phone         String
   email         String?
+  website       String?  // Opcional, útil para futuros endpoints
   
   // Address
   street        String
   city          String
   state         String
   zipCode       String   @map("zip_code")
+  country       String   @default("Mexico") // Útil para expansión internacional
   latitude      Float
   longitude     Float
   
@@ -41,6 +43,7 @@ model Workshop {
   
   // Status
   isApproved    Boolean  @default(false) @map("is_approved")
+  isActive      Boolean  @default(true)  @map("is_active") // Soft delete
   
   // Relations
   specialties   WorkshopSpecialty[]
@@ -52,6 +55,7 @@ model Workshop {
 
   @@index([ownerId])
   @@index([city, state])
+  @@index([isApproved, isActive]) // Para búsquedas filtradas
   @@map("workshops")
 }
 
@@ -72,6 +76,7 @@ model WorkshopSpecialty {
   createdAt DateTime @default(now()) @map("created_at")
 
   @@index([workshopId])
+  @@index([specialtyType]) // Para búsquedas por especialidad
   @@map("workshop_specialties")
 }
 
