@@ -1,213 +1,141 @@
-// This is your Prisma schema file for Workshop Service
-// Learn more: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
-  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  extensions = [postgis]
 }
 
-// ============================================
-// WORKSHOP SERVICE MODELS
-// ============================================
+// ==========================================
+// WORKSHOP AGGREGATE
+// ==========================================
 
 model Workshop {
-  id          String   @id @default(uuid())
-  ownerId     String   // Foreign key to Auth Service (WORKSHOP_ADMIN)
+  id            String   @id @default(uuid())
+  ownerId       String   @map("owner_id")
   
   // Basic info
-  name        String
-  description String?
-  phone       String
-  email       String?
-  website     String?
+  businessName  String   @map("business_name")
+  description   String?
+  phone         String
+  email         String?
   
   // Address
-  street      String
-  city        String
-  state       String
-  zipCode     String
-  country     String   @default("Mexico")
+  street        String
+  city          String
+  state         String
+  zipCode       String   @map("zip_code")
+  latitude      Float
+  longitude     Float
   
-  // Geolocation (PostGIS)
-  latitude    Float
-  longitude   Float
-  // location    Unsupported("geography(Point, 4326)")? // PostGIS geography type
+  // Price range
+  priceRange    String   @default("MEDIUM") @map("price_range")
   
-  // Business hours
-  openingTime String?  // "08:00"
-  closingTime String?  // "18:00"
-  workingDays String[] // ["Monday", "Tuesday", ...]
+  // Ratings (calculated fields)
+  overallRating Float    @default(0) @map("overall_rating")
+  totalReviews  Int      @default(0) @map("total_reviews")
   
-  // Specialties
-  specialties String[] // ["Transmisión", "Frenos", "Motor", etc.]
-  brands      String[] // ["Toyota", "Honda", "Nissan", etc.]
-  
-  // Pricing (indicativo)
-  priceRange  PriceRange @default(MEDIUM)
-  
-  // Ratings
-  averageRating Float   @default(0)
-  totalReviews  Int     @default(0)
-  
-  // Capacity
-  dailyCapacity Int     @default(10) // Número de citas por día
+  // Photos
+  photoUrls     String[] @map("photo_urls")
   
   // Status
-  isActive      Boolean @default(true)
-  isVerified    Boolean @default(false)
+  isApproved    Boolean  @default(false) @map("is_approved")
   
-  // Media
-  logo          String?
-  photos        String[] // Array of photo URLs
-  
-  // Relationships
-  availability  WorkshopAvailability[]
+  // Relations
+  specialties   WorkshopSpecialty[]
+  schedule      WorkshopSchedule[]
   reviews       Review[]
   
-  // Timestamps
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
   @@index([ownerId])
   @@index([city, state])
-  // @@index([location], type: Gist) // PostGIS spatial index
   @@map("workshops")
 }
 
-enum PriceRange {
-  LOW
-  MEDIUM
-  HIGH
-  PREMIUM
+// ==========================================
+// WORKSHOP SPECIALTIES
+// ==========================================
+
+model WorkshopSpecialty {
+  id                String   @id @default(uuid())
+  workshopId        String   @map("workshop_id")
+  specialtyType     String   @map("specialty_type")
+  description       String?
+  yearsOfExperience Int?     @map("years_of_experience")
+  
+  // Relations
+  workshop Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([workshopId])
+  @@map("workshop_specialties")
 }
 
-// ============================================
-// WORKSHOP AVAILABILITY
-// ============================================
+// ==========================================
+// WORKSHOP SCHEDULE
+// ==========================================
 
-model WorkshopAvailability {
-  id          String   @id @default(uuid())
-  workshopId  String
-  workshop    Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+model WorkshopSchedule {
+  id        String   @id @default(uuid())
+  workshopId String  @map("workshop_id")
+  dayOfWeek String   @map("day_of_week")
+  openTime  String?  @map("open_time")
+  closeTime String?  @map("close_time")
+  isClosed  Boolean  @default(false) @map("is_closed")
   
-  // Date
-  date        DateTime @db.Date
-  
-  // Time slots
-  startTime   String   // "08:00"
-  endTime     String   // "09:00"
-  
-  // Capacity
-  maxAppointments Int  @default(1)
-  bookedCount     Int  @default(0)
-  
-  // Status
-  isAvailable Boolean  @default(true)
-  
-  // Timestamps
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  @@unique([workshopId, date, startTime])
-  @@index([workshopId, date])
-  @@map("workshop_availability")
+  // Relations
+  workshop Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+
+  @@unique([workshopId, dayOfWeek])
+  @@index([workshopId])
+  @@map("workshop_schedules")
 }
 
-// ============================================
+// ==========================================
 // REVIEWS
-// ============================================
+// ==========================================
 
 model Review {
-  id          String   @id @default(uuid())
-  workshopId  String
-  workshop    Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+  id            String   @id @default(uuid())
+  workshopId    String   @map("workshop_id")
+  userId        String   @map("user_id")
+  userName      String   @map("user_name")
+  userAvatar    String?  @map("user_avatar")
+  appointmentId String?  @map("appointment_id")
   
-  userId      String   // Foreign key to Auth Service
-  appointmentId String? // Foreign key to Appointment Service
-  
-  // Rating (1-5 stars)
-  overallRating   Int // 1-5
-  qualityRating   Int // 1-5
-  priceRating     Int // 1-5
-  timelinessRating Int // 1-5
-  serviceRating   Int // 1-5
+  // Ratings (1-5)
+  overallRating         Int  @map("overall_rating")
+  qualityRating         Int? @map("quality_rating")
+  priceRating           Int? @map("price_rating")
+  timeComplianceRating  Int? @map("time_compliance_rating")
+  customerServiceRating Int? @map("customer_service_rating")
   
   // Review content
-  comment     String?
+  comment  String?
   
-  // Response from workshop
-  response    String?
-  respondedAt DateTime?
+  // Sentiment analysis (from Diagnosis Service ML)
+  sentimentLabel String? @map("sentiment_label") // POSITIVE, NEUTRAL, NEGATIVE
+  sentimentScore Float?  @map("sentiment_score") // 0-1
+  
+  // Workshop response
+  workshopResponse String?   @map("workshop_response")
+  respondedAt      DateTime? @map("responded_at")
   
   // Verification
-  isVerified  Boolean  @default(false)
+  isVerified Boolean @default(false) @map("is_verified")
   
-  // Status
-  isReported  Boolean  @default(false)
-  reportReason String?
+  // Relations
+  workshop Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
   
-  // Timestamps
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
   @@index([workshopId])
   @@index([userId])
   @@index([appointmentId])
   @@map("reviews")
-}
-
-// ============================================
-// SERVICE CATEGORIES
-// ============================================
-
-model ServiceCategory {
-  id          String   @id @default(uuid())
-  name        String   @unique
-  description String?
-  icon        String?
-  
-  // Average pricing
-  averagePrice Float?
-  priceUnit    String?  // "por hora", "por servicio", etc.
-  
-  // Popular services
-  services    Service[]
-  
-  // Status
-  isActive    Boolean  @default(true)
-  
-  // Timestamps
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  @@map("service_categories")
-}
-
-model Service {
-  id          String   @id @default(uuid())
-  categoryId  String
-  category    ServiceCategory @relation(fields: [categoryId], references: [id])
-  
-  name        String
-  description String?
-  
-  // Pricing
-  estimatedPrice Float?
-  duration       Int?    // Duración estimada en minutos
-  
-  // Status
-  isActive    Boolean  @default(true)
-  
-  // Timestamps
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  @@index([categoryId])
-  @@map("services")
 }
