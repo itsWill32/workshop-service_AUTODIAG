@@ -1,39 +1,42 @@
-// autodiag-workshop-service/src/main.ts
-
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-// --- AÑADE ESTA LÍNEA ---
-import { ValidationPipe } from '@nestjs/common'; 
-// --- AÑADE ESTA LÍNEA ---
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ValidationPipe } from '@nestjs/common';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { AppModule } from './infrastructure/modules/app.module';
+import { HttpExceptionFilter } from './infrastructure/http/filters/http-exception.filter';
+
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.setGlobalPrefix('api/v1');
+  app.enableCors({
+    origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000'],
+    credentials: true,
+  });
 
-  // Ahora 'ValidationPipe' será reconocido
-  app.useGlobalPipes(new ValidationPipe({
-    whitelist: true, 
-    forbidNonWhitelisted: true,
-    transform: true,
-  }));
+  app.setGlobalPrefix('api/workshops');
 
-  // Ahora 'DocumentBuilder' será reconocido
-  const config = new DocumentBuilder()
-    .setTitle('Workshop Service API')
-    .setDescription('Servicio de gestión de talleres mecánicos para AutoDiag.')
-    .setVersion('1.0.0')
-    .addBearerAuth()
-    .build();
-  
-  // Ahora 'SwaggerModule' será reconocido
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document);
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
+    }),
+  );
+
+  app.useGlobalFilters(new HttpExceptionFilter());
+
+
 
   const port = process.env.PORT || 3003;
   await app.listen(port);
-  
-  console.log(`🚀 WorkshopService está corriendo en: http://localhost:${port}`);
+
+  console.log(`
+    Server: http://localhost:${port}
+
+  `);
 }
+
 bootstrap();

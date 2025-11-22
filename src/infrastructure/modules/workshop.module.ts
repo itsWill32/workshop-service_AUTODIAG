@@ -1,19 +1,100 @@
 import { Module } from '@nestjs/common';
-import { DatabaseModule } from './databasse.module';
-import { WorkshopsController } from '../adapters/input/rest/workshop.controller';
-import { WorkshopService } from '../../application/use-cases/workshop.service';
-import { WORKSHOP_REPOSITORY } from '../../domain/interfaces/workshop.repository.interface';
-import { PrismaWorkshopRepository } from '../adapters/output/persistence/risma-workshop.repository';
+import { PrismaService } from '../database/prisma.service';
+import { PrismaWorkshopRepository } from '../database/repositories/prisma-workshop.repository';
+import { PrismaReviewRepository } from '../database/repositories/prisma-review.repository';
+
+import {
+  WorkshopsController,
+  SpecialtiesController,
+  ScheduleController,
+  ReviewsController,
+} from '../http/controllers';
+
+import {
+  CreateWorkshopUseCase,
+  GetWorkshopsUseCase,
+  GetWorkshopByIdUseCase,
+  UpdateWorkshopUseCase,
+  DeleteWorkshopUseCase,
+  SearchNearbyWorkshopsUseCase,
+} from '../../application/use-cases/workshop';
+
+import {
+  AddSpecialtyUseCase,
+  GetSpecialtiesUseCase,
+} from '../../application/use-cases/specialty';
+
+import {
+  SetWorkshopScheduleUseCase,
+  GetWorkshopScheduleUseCase,
+} from '../../application/use-cases/schedule';
+
+import {
+  CreateReviewUseCase,
+  GetReviewsUseCase,
+  UpdateReviewUseCase,
+  DeleteReviewUseCase,
+  RespondToReviewUseCase,
+} from '../../application/use-cases/review';
+
+import { IWorkshopRepository } from '../../domain/repositories/workshop.repository.interface';
+import { IReviewRepository } from '../../domain/repositories/review.repository.interface';
+
+import { AuthModule } from './auth.module';
+
 
 @Module({
-  imports: [DatabaseModule], // Importa el PrismaClient
-  controllers: [WorkshopsController],
+  imports: [AuthModule],
+  controllers: [
+    WorkshopsController,
+    SpecialtiesController,
+    ScheduleController,
+    ReviewsController,
+  ],
   providers: [
-    WorkshopService,
+    PrismaService,
+
     {
-      provide: WORKSHOP_REPOSITORY,
+      provide: 'IWorkshopRepository',
       useClass: PrismaWorkshopRepository,
     },
+    {
+      provide: 'IReviewRepository',
+      useClass: PrismaReviewRepository,
+    },
+
+    {
+      provide: IWorkshopRepository,
+      useClass: PrismaWorkshopRepository,
+    },
+    {
+      provide: IReviewRepository,
+      useClass: PrismaReviewRepository,
+    },
+
+    CreateWorkshopUseCase,
+    GetWorkshopsUseCase,
+    GetWorkshopByIdUseCase,
+    UpdateWorkshopUseCase,
+    DeleteWorkshopUseCase,
+    SearchNearbyWorkshopsUseCase,
+
+    AddSpecialtyUseCase,
+    GetSpecialtiesUseCase,
+
+    SetWorkshopScheduleUseCase,
+    GetWorkshopScheduleUseCase,
+
+    CreateReviewUseCase,
+    GetReviewsUseCase,
+    UpdateReviewUseCase,
+    DeleteReviewUseCase,
+    RespondToReviewUseCase,
+  ],
+  exports: [
+    PrismaService,
+    IWorkshopRepository,
+    IReviewRepository,
   ],
 })
 export class WorkshopModule {}
