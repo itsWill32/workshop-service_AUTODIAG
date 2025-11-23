@@ -37,9 +37,6 @@ import {
   RespondToReviewUseCase,
 } from '../../application/use-cases/review';
 
-import { IWorkshopRepository } from '../../domain/repositories/workshop.repository.interface';
-import { IReviewRepository } from '../../domain/repositories/review.repository.interface';
-
 import { AuthModule } from './auth.module';
 
 
@@ -63,14 +60,7 @@ import { AuthModule } from './auth.module';
       useClass: PrismaReviewRepository,
     },
 
-    {
-      provide: IWorkshopRepository,
-      useClass: PrismaWorkshopRepository,
-    },
-    {
-      provide: IReviewRepository,
-      useClass: PrismaReviewRepository,
-    },
+
 
     CreateWorkshopUseCase,
     GetWorkshopsUseCase,
@@ -93,8 +83,8 @@ import { AuthModule } from './auth.module';
   ],
   exports: [
     PrismaService,
-    IWorkshopRepository,
-    IReviewRepository,
+    'IWorkshopRepository',
+    'IReviewRepository',
   ],
 })
 export class WorkshopModule {}

@@ -412,18 +412,18 @@ export class PrismaWorkshopRepository implements IWorkshopRepository {
   ): Promise<WorkshopSchedule[]> {
     const savedSchedules = await this.prisma.$transaction(async (prisma) => {
       await prisma.workshopSchedule.deleteMany({
-        where: { workshop_id: workshopId },
+        where: { workshopId },
       });
 
       const createPromises = schedules.map((schedule) =>
         prisma.workshopSchedule.create({
           data: {
             id: schedule.getId(),
-            workshop_id: schedule.getWorkshopId(),
-            day_of_week: schedule.getDayOfWeek(),
-            open_time: schedule.getOpenTime(),
-            close_time: schedule.getCloseTime(),
-            is_closed: schedule.getIsClosed(),
+            workshopId: schedule.getWorkshopId(),      
+            dayOfWeek: schedule.getDayOfWeek(),        
+            openTime: schedule.getOpenTime(),          
+            closeTime: schedule.getCloseTime(),        
+            isClosed: schedule.getIsClosed(),          
           },
         }),
       );
