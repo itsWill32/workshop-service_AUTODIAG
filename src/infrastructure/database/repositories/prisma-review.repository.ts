@@ -46,24 +46,24 @@ export class PrismaReviewRepository implements IReviewRepository {
 
     return Review.fromPrimitives(
       savedReview.id,
-      savedReview.workshop_id,
-      savedReview.user_id,
-      savedReview.user_name,
-      savedReview.user_avatar,
-      savedReview.appointment_id,
-      savedReview.overall_rating,
-      savedReview.quality_rating,
-      savedReview.price_rating,
-      savedReview.time_compliance_rating,
-      savedReview.customer_service_rating,
+      savedReview.workshopId,
+      savedReview.userId,
+      savedReview.userName,
+      savedReview.userAvatar,
+      savedReview.appointmentId,
+      savedReview.overallRating,
+      savedReview.qualityRating,
+      savedReview.priceRating,
+      savedReview.timeComplianceRating,
+      savedReview.customerServiceRating,
       savedReview.comment,
-      savedReview.sentiment_label,
-      savedReview.sentiment_score,
-      savedReview.workshop_response,
-      savedReview.responded_at,
-      savedReview.is_verified,
-      savedReview.created_at,
-      savedReview.updated_at,
+      savedReview.sentimentLabel,
+      savedReview.sentimentScore,
+      savedReview.workshopResponse,
+      savedReview.respondedAt,
+      savedReview.isVerified,
+      savedReview.createdAt,
+      savedReview.updatedAt,
     );
   }
 
@@ -79,24 +79,24 @@ export class PrismaReviewRepository implements IReviewRepository {
 
     return Review.fromPrimitives(
       review.id,
-      review.workshop_id,
-      review.user_id,
-      review.user_name,
-      review.user_avatar,
-      review.appointment_id,
-      review.overall_rating,
-      review.quality_rating,
-      review.price_rating,
-      review.time_compliance_rating,
-      review.customer_service_rating,
+      review.workshopId,
+      review.userId,
+      review.userName,
+      review.userAvatar,
+      review.appointmentId,
+      review.overallRating,
+      review.qualityRating,
+      review.priceRating,
+      review.timeComplianceRating,
+      review.customerServiceRating,
       review.comment,
-      review.sentiment_label,
-      review.sentiment_score,
-      review.workshop_response,
-      review.responded_at,
-      review.is_verified,
-      review.created_at,
-      review.updated_at,
+      review.sentimentLabel,
+      review.sentimentScore,
+      review.workshopResponse,
+      review.respondedAt,
+      review.isVerified,
+      review.createdAt,
+      review.updatedAt,
     );
   }
 
@@ -147,24 +147,24 @@ export class PrismaReviewRepository implements IReviewRepository {
       reviews: reviews.map((r) =>
         Review.fromPrimitives(
           r.id,
-          r.workshop_id,
-          r.user_id,
-          r.user_name,
-          r.user_avatar,
-          r.appointment_id,
-          r.overall_rating,
-          r.quality_rating,
-          r.price_rating,
-          r.time_compliance_rating,
-          r.customer_service_rating,
+          r.workshopId,
+          r.userId,
+          r.userName,
+          r.userAvatar,
+          r.appointmentId,
+          r.overallRating,
+          r.qualityRating,
+          r.priceRating,
+          r.timeComplianceRating,
+          r.customerServiceRating,
           r.comment,
-          r.sentiment_label,
-          r.sentiment_score,
-          r.workshop_response,
-          r.responded_at,
-          r.is_verified,
-          r.created_at,
-          r.updated_at,
+          r.sentimentLabel,
+          r.sentimentScore,
+          r.workshopResponse,
+          r.respondedAt,
+          r.isVerified,
+          r.createdAt,
+          r.updatedAt,
         ),
       ),
       total,
@@ -183,24 +183,24 @@ export class PrismaReviewRepository implements IReviewRepository {
     return reviews.map((r) =>
       Review.fromPrimitives(
         r.id,
-        r.workshop_id,
-        r.user_id,
-        r.user_name,
-        r.user_avatar,
-        r.appointment_id,
-        r.overall_rating,
-        r.quality_rating,
-        r.price_rating,
-        r.time_compliance_rating,
-        r.customer_service_rating,
+        r.workshopId,
+        r.userId,
+        r.userName,
+        r.userAvatar,
+        r.appointmentId,
+        r.overallRating,
+        r.qualityRating,
+        r.priceRating,
+        r.timeComplianceRating,
+        r.customerServiceRating,
         r.comment,
-        r.sentiment_label,
-        r.sentiment_score,
-        r.workshop_response,
-        r.responded_at,
-        r.is_verified,
-        r.created_at,
-        r.updated_at,
+        r.sentimentLabel,
+        r.sentimentScore,
+        r.workshopResponse,
+        r.respondedAt,
+        r.isVerified,
+        r.createdAt,
+        r.updatedAt,
       ),
     );
   }
@@ -216,24 +216,24 @@ export class PrismaReviewRepository implements IReviewRepository {
 
     return Review.fromPrimitives(
       review.id,
-      review.workshop_id,
-      review.user_id,
-      review.user_name,
-      review.user_avatar,
-      review.appointment_id,
-      review.overall_rating,
-      review.quality_rating,
-      review.price_rating,
-      review.time_compliance_rating,
-      review.customer_service_rating,
+      review.workshopId,
+      review.userId,
+      review.userName,
+      review.userAvatar,
+      review.appointmentId,
+      review.overallRating,
+      review.qualityRating,
+      review.priceRating,
+      review.timeComplianceRating,
+      review.customerServiceRating,
       review.comment,
-      review.sentiment_label,
-      review.sentiment_score,
-      review.workshop_response,
-      review.responded_at,
-      review.is_verified,
-      review.created_at,
-      review.updated_at,
+      review.sentimentLabel,
+      review.sentimentScore,
+      review.workshopResponse,
+      review.respondedAt,
+      review.isVerified,
+      review.createdAt,
+      review.updatedAt,
     );
   }
 
@@ -252,8 +252,6 @@ export class PrismaReviewRepository implements IReviewRepository {
       where: { workshop_id: workshopId },
     });
   }
-
-
 
 
   async getReviewStatistics(workshopId: string): Promise<ReviewStatistics> {
@@ -286,47 +284,47 @@ export class PrismaReviewRepository implements IReviewRepository {
       };
     }
 
-    const sumOverall = reviews.reduce((sum, r) => sum + r.overall_rating, 0);
+    const sumOverall = reviews.reduce((sum, r) => sum + r.overallRating, 0);
     const averageOverall = sumOverall / totalReviews;
 
-    const qualityRatings = reviews.filter((r) => r.quality_rating !== null);
+    const qualityRatings = reviews.filter((r) => r.qualityRating !== null);
     const averageQuality =
       qualityRatings.length > 0
-        ? qualityRatings.reduce((sum, r) => sum + r.quality_rating!, 0) / qualityRatings.length
+        ? qualityRatings.reduce((sum, r) => sum + r.qualityRating!, 0) / qualityRatings.length
         : 0;
 
-    const priceRatings = reviews.filter((r) => r.price_rating !== null);
+    const priceRatings = reviews.filter((r) => r.priceRating !== null);
     const averagePrice =
       priceRatings.length > 0
-        ? priceRatings.reduce((sum, r) => sum + r.price_rating!, 0) / priceRatings.length
+        ? priceRatings.reduce((sum, r) => sum + r.priceRating!, 0) / priceRatings.length
         : 0;
 
-    const timeRatings = reviews.filter((r) => r.time_compliance_rating !== null);
+    const timeRatings = reviews.filter((r) => r.timeComplianceRating !== null);
     const averageTimeCompliance =
       timeRatings.length > 0
-        ? timeRatings.reduce((sum, r) => sum + r.time_compliance_rating!, 0) /
+        ? timeRatings.reduce((sum, r) => sum + r.timeComplianceRating!, 0) /
           timeRatings.length
         : 0;
 
-    const serviceRatings = reviews.filter((r) => r.customer_service_rating !== null);
+    const serviceRatings = reviews.filter((r) => r.customerServiceRating !== null);
     const averageCustomerService =
       serviceRatings.length > 0
-        ? serviceRatings.reduce((sum, r) => sum + r.customer_service_rating!, 0) /
+        ? serviceRatings.reduce((sum, r) => sum + r.customerServiceRating!, 0) /
           serviceRatings.length
         : 0;
 
     const ratingDistribution = {
-      fiveStars: reviews.filter((r) => r.overall_rating === 5).length,
-      fourStars: reviews.filter((r) => r.overall_rating === 4).length,
-      threeStars: reviews.filter((r) => r.overall_rating === 3).length,
-      twoStars: reviews.filter((r) => r.overall_rating === 2).length,
-      oneStar: reviews.filter((r) => r.overall_rating === 1).length,
+      fiveStars: reviews.filter((r) => r.overallRating === 5).length,
+      fourStars: reviews.filter((r) => r.overallRating === 4).length,
+      threeStars: reviews.filter((r) => r.overallRating === 3).length,
+      twoStars: reviews.filter((r) => r.overallRating === 2).length,
+      oneStar: reviews.filter((r) => r.overallRating === 1).length,
     };
 
     const sentimentDistribution = {
-      positive: reviews.filter((r) => r.sentiment_label === 'POSITIVE').length,
-      neutral: reviews.filter((r) => r.sentiment_label === 'NEUTRAL').length,
-      negative: reviews.filter((r) => r.sentiment_label === 'NEGATIVE').length,
+      positive: reviews.filter((r) => r.sentimentLabel === 'POSITIVE').length,
+      neutral: reviews.filter((r) => r.sentimentLabel === 'NEUTRAL').length,
+      negative: reviews.filter((r) => r.sentimentLabel === 'NEGATIVE').length,
     };
 
     return {
@@ -355,24 +353,24 @@ export class PrismaReviewRepository implements IReviewRepository {
     return reviews.map((r) =>
       Review.fromPrimitives(
         r.id,
-        r.workshop_id,
-        r.user_id,
-        r.user_name,
-        r.user_avatar,
-        r.appointment_id,
-        r.overall_rating,
-        r.quality_rating,
-        r.price_rating,
-        r.time_compliance_rating,
-        r.customer_service_rating,
+        r.workshopId,
+        r.userId,
+        r.userName,
+        r.userAvatar,
+        r.appointmentId,
+        r.overallRating,
+        r.qualityRating,
+        r.priceRating,
+        r.timeComplianceRating,
+        r.customerServiceRating,
         r.comment,
-        r.sentiment_label,
-        r.sentiment_score,
-        r.workshop_response,
-        r.responded_at,
-        r.is_verified,
-        r.created_at,
-        r.updated_at,
+        r.sentimentLabel,
+        r.sentimentScore,
+        r.workshopResponse,
+        r.respondedAt,
+        r.isVerified,
+        r.createdAt,
+        r.updatedAt,
       ),
     );
   }
