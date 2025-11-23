@@ -351,8 +351,8 @@ export class PrismaWorkshopRepository implements IWorkshopRepository {
 
   async findSpecialtiesByWorkshopId(workshopId: string): Promise<WorkshopSpecialty[]> {
     const specialties = await this.prisma.workshopSpecialty.findMany({
-      where: { workshop_id: workshopId },
-      orderBy: { created_at: 'desc' },
+      where: { workshopId: workshopId },
+      orderBy: { createdAt: 'desc' },
     });
 
     return specialties.map((s) =>
@@ -391,8 +391,8 @@ export class PrismaWorkshopRepository implements IWorkshopRepository {
   async existsSpecialty(workshopId: string, specialtyType: string): Promise<boolean> {
     const count = await this.prisma.workshopSpecialty.count({
       where: {
-        workshop_id: workshopId,
-        specialty_type: specialtyType,
+        workshopId,
+        specialtyType,
       },
     });
 
@@ -445,7 +445,7 @@ export class PrismaWorkshopRepository implements IWorkshopRepository {
 
   async findSchedulesByWorkshopId(workshopId: string): Promise<WorkshopSchedule[]> {
     const schedules = await this.prisma.workshopSchedule.findMany({
-      where: { workshop_id: workshopId },
+      where: { workshopId },
     });
 
     return schedules.map((s) =>
