@@ -51,8 +51,8 @@ export class PrismaWorkshopRepository implements IWorkshopRepository {
 
     return Workshop.fromPrimitives(
       savedWorkshop.id,
-      savedWorkshop.owner_id,
-      savedWorkshop.business_name,
+      savedWorkshop.ownerId,
+      savedWorkshop.businessName,
       savedWorkshop.description,
       savedWorkshop.phone,
       savedWorkshop.email,
@@ -60,18 +60,18 @@ export class PrismaWorkshopRepository implements IWorkshopRepository {
       savedWorkshop.street,
       savedWorkshop.city,
       savedWorkshop.state,
-      savedWorkshop.zip_code,
+      savedWorkshop.zipCode,
       savedWorkshop.country,
       savedWorkshop.latitude,
       savedWorkshop.longitude,
-      savedWorkshop.price_range,
-      savedWorkshop.overall_rating,
-      savedWorkshop.total_reviews,
-      savedWorkshop.photo_urls,
-      savedWorkshop.is_approved,
-      savedWorkshop.is_active,
-      savedWorkshop.created_at,
-      savedWorkshop.updated_at,
+      savedWorkshop.priceRange,
+      savedWorkshop.overallRating,
+      savedWorkshop.totalReviews,
+      savedWorkshop.photoUrls,
+      savedWorkshop.isApproved,
+      savedWorkshop.isActive,
+      savedWorkshop.createdAt,
+      savedWorkshop.updatedAt,
     );
   }
 
@@ -87,8 +87,8 @@ export class PrismaWorkshopRepository implements IWorkshopRepository {
 
     return Workshop.fromPrimitives(
       workshop.id,
-      workshop.owner_id,
-      workshop.business_name,
+      workshop.ownerId,
+      workshop.businessName,
       workshop.description,
       workshop.phone,
       workshop.email,
@@ -96,18 +96,18 @@ export class PrismaWorkshopRepository implements IWorkshopRepository {
       workshop.street,
       workshop.city,
       workshop.state,
-      workshop.zip_code,
+      workshop.zipCode,
       workshop.country,
       workshop.latitude,
       workshop.longitude,
-      workshop.price_range,
-      workshop.overall_rating,
-      workshop.total_reviews,
-      workshop.photo_urls,
-      workshop.is_approved,
-      workshop.is_active,
-      workshop.created_at,
-      workshop.updated_at,
+      workshop.priceRange,
+      workshop.overallRating,
+      workshop.totalReviews,
+      workshop.photoUrls,
+      workshop.isApproved,
+      workshop.isActive,
+      workshop.createdAt,
+      workshop.updatedAt,
     );
   }
 
@@ -121,8 +121,8 @@ export class PrismaWorkshopRepository implements IWorkshopRepository {
     return workshops.map((w) =>
       Workshop.fromPrimitives(
         w.id,
-        w.owner_id,
-        w.business_name,
+        w.ownerId,
+        w.businessName,
         w.description,
         w.phone,
         w.email,
@@ -130,18 +130,18 @@ export class PrismaWorkshopRepository implements IWorkshopRepository {
         w.street,
         w.city,
         w.state,
-        w.zip_code,
+        w.zipCode,
         w.country,
         w.latitude,
         w.longitude,
-        w.price_range,
-        w.overall_rating,
-        w.total_reviews,
-        w.photo_urls,
-        w.is_approved,
-        w.is_active,
-        w.created_at,
-        w.updated_at,
+        w.priceRange,
+        w.overallRating,
+        w.totalReviews,
+        w.photoUrls,
+        w.isApproved,
+        w.isActive,
+        w.createdAt,
+        w.updatedAt,
       ),
     );
   }
@@ -209,8 +209,8 @@ export class PrismaWorkshopRepository implements IWorkshopRepository {
       workshops: workshops.map((w) =>
         Workshop.fromPrimitives(
           w.id,
-          w.owner_id,
-          w.business_name,
+          w.ownerId,
+          w.businessName,
           w.description,
           w.phone,
           w.email,
@@ -218,18 +218,18 @@ export class PrismaWorkshopRepository implements IWorkshopRepository {
           w.street,
           w.city,
           w.state,
-          w.zip_code,
+          w.zipCode,
           w.country,
           w.latitude,
           w.longitude,
-          w.price_range,
-          w.overall_rating,
-          w.total_reviews,
-          w.photo_urls,
-          w.is_approved,
-          w.is_active,
-          w.created_at,
-          w.updated_at,
+          w.priceRange,
+          w.overallRating,
+          w.totalReviews,
+          w.photoUrls,
+          w.isApproved,
+          w.isActive,
+          w.createdAt,
+          w.updatedAt,
         ),
       ),
       total,
@@ -288,8 +288,8 @@ export class PrismaWorkshopRepository implements IWorkshopRepository {
     return nearbyWorkshops.map((w) =>
       Workshop.fromPrimitives(
         w.id,
-        w.owner_id,
-        w.business_name,
+        w.ownerId,
+        w.businessName,
         w.description,
         w.phone,
         w.email,
@@ -297,18 +297,18 @@ export class PrismaWorkshopRepository implements IWorkshopRepository {
         w.street,
         w.city,
         w.state,
-        w.zip_code,
+        w.zipCode,
         w.country,
         w.latitude,
         w.longitude,
-        w.price_range,
-        w.overall_rating,
-        w.total_reviews,
-        w.photo_urls,
-        w.is_approved,
-        w.is_active,
-        w.created_at,
-        w.updated_at,
+        w.priceRange,
+        w.overallRating,
+        w.totalReviews,
+        w.photoUrls,
+        w.isApproved,
+        w.isActive,
+        w.createdAt,
+        w.updatedAt,
       ),
     );
   }
@@ -341,11 +341,11 @@ export class PrismaWorkshopRepository implements IWorkshopRepository {
 
     return WorkshopSpecialty.fromPrimitives(
       savedSpecialty.id,
-      savedSpecialty.workshop_id,
-      savedSpecialty.specialty_type,
+      savedSpecialty.workshopId,
+      savedSpecialty.specialtyType,
       savedSpecialty.description,
-      savedSpecialty.years_of_experience,
-      savedSpecialty.created_at,
+      savedSpecialty.yearsOfExperience,
+      savedSpecialty.createdAt,
     );
   }
 
@@ -358,11 +358,11 @@ export class PrismaWorkshopRepository implements IWorkshopRepository {
     return specialties.map((s) =>
       WorkshopSpecialty.fromPrimitives(
         s.id,
-        s.workshop_id,
-        s.specialty_type,
+        s.workshopId,
+        s.specialtyType,
         s.description,
-        s.years_of_experience,
-        s.created_at,
+        s.yearsOfExperience,
+        s.createdAt,
       ),
     );
   }
@@ -379,11 +379,11 @@ export class PrismaWorkshopRepository implements IWorkshopRepository {
 
     return WorkshopSpecialty.fromPrimitives(
       specialty.id,
-      specialty.workshop_id,
-      specialty.specialty_type,
+      specialty.workshopId,
+      specialty.specialtyType,
       specialty.description,
-      specialty.years_of_experience,
-      specialty.created_at,
+      specialty.yearsOfExperience,
+      specialty.createdAt,
     );
   }
 
@@ -434,11 +434,11 @@ export class PrismaWorkshopRepository implements IWorkshopRepository {
     return savedSchedules.map((s) =>
       WorkshopSchedule.fromPrimitives(
         s.id,
-        s.workshop_id,
-        s.day_of_week,
-        s.open_time,
-        s.close_time,
-        s.is_closed,
+        s.workshopId,
+        s.dayOfWeek,
+        s.openTime,
+        s.closeTime,
+        s.isClosed,
       ),
     );
   }
@@ -451,11 +451,11 @@ export class PrismaWorkshopRepository implements IWorkshopRepository {
     return schedules.map((s) =>
       WorkshopSchedule.fromPrimitives(
         s.id,
-        s.workshop_id,
-        s.day_of_week,
-        s.open_time,
-        s.close_time,
-        s.is_closed,
+        s.workshopId,
+        s.dayOfWeek,
+        s.openTime,
+        s.closeTime,
+        s.isClosed,
       ),
     );
   }
@@ -466,9 +466,9 @@ export class PrismaWorkshopRepository implements IWorkshopRepository {
   ): Promise<WorkshopSchedule | null> {
     const schedule = await this.prisma.workshopSchedule.findUnique({
       where: {
-        workshop_id_day_of_week: {
-          workshop_id: workshopId,
-          day_of_week: dayOfWeek,
+        workshopId_dayOfWeek: {
+          workshopId: workshopId,
+          dayOfWeek: dayOfWeek,
         },
       },
     });
@@ -479,17 +479,17 @@ export class PrismaWorkshopRepository implements IWorkshopRepository {
 
     return WorkshopSchedule.fromPrimitives(
       schedule.id,
-      schedule.workshop_id,
-      schedule.day_of_week,
-      schedule.open_time,
-      schedule.close_time,
-      schedule.is_closed,
+      schedule.workshopId,
+      schedule.dayOfWeek,
+      schedule.openTime,
+      schedule.closeTime,
+      schedule.isClosed,
     );
   }
 
   async deleteSchedulesByWorkshopId(workshopId: string): Promise<void> {
     await this.prisma.workshopSchedule.deleteMany({
-      where: { workshop_id: workshopId },
+      where: { workshopId }, 
     });
   }
 

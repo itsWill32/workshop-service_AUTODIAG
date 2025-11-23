@@ -13,12 +13,15 @@ import { RolesGuard } from '../http/guards/roles.guard';
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET') || 'AT-PRODUCTION-[JWT]',
-        signOptions: {
-          expiresIn: configService.get<string>('JWT_EXPIRES_IN') || '15m',
-        },
-      }),
+      useFactory: async (configService: ConfigService) => {
+        const expiresIn = configService.get<string>('JWT_EXPIRES_IN') ;
+        return {
+          secret: configService.get<string>('JWT_SECRET') ,
+          signOptions: {
+            expiresIn, 
+          },
+        };
+      },
     }),
   ],
   providers: [JwtStrategy, JwtAuthGuard, RolesGuard],
