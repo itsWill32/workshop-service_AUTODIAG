@@ -9,6 +9,7 @@ import {
   HttpCode,
   HttpStatus,
   ParseUUIDPipe,
+  Inject,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -29,7 +30,6 @@ import {
 } from '../../../application/use-cases';
 import { IWorkshopRepository } from '../../../domain/repositories';
 
-
 @ApiTags('Specialties')
 @Controller('workshops/:workshopId/specialties')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -37,6 +37,7 @@ export class SpecialtiesController {
   constructor(
     private readonly addSpecialtyUseCase: AddSpecialtyUseCase,
     private readonly getSpecialtiesUseCase: GetSpecialtiesUseCase,
+    @Inject('IWorkshopRepository')
     private readonly workshopRepository: IWorkshopRepository,
   ) {}
 

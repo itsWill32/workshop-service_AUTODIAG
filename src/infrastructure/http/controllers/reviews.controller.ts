@@ -12,6 +12,7 @@ import {
   HttpStatus,
   ParseUUIDPipe,
   ParseIntPipe,
+  Inject,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -44,7 +45,6 @@ import {
 } from '../../../application/use-cases';
 import { IReviewRepository } from '../../../domain/repositories';
 
-
 @ApiTags('Reviews')
 @Controller('workshops/:workshopId/reviews')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -55,6 +55,7 @@ export class ReviewsController {
     private readonly updateReviewUseCase: UpdateReviewUseCase,
     private readonly deleteReviewUseCase: DeleteReviewUseCase,
     private readonly respondToReviewUseCase: RespondToReviewUseCase,
+    @Inject('IReviewRepository')
     private readonly reviewRepository: IReviewRepository,
   ) {}
 
@@ -119,7 +120,7 @@ export class ReviewsController {
       workshopId,
       user.userId,
       user.fullName,
-      null, 
+      null,
       createReviewDto,
     );
   }
