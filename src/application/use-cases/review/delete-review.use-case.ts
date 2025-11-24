@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { IWorkshopRepository, IReviewRepository } from '../../../domain/repositories';
 import {
   ReviewNotFoundException,
@@ -6,11 +6,12 @@ import {
 } from '../../../domain/exceptions/review.exceptions';
 import { WorkshopNotFoundException } from '../../../domain/exceptions/workshop.exceptions';
 
-
 @Injectable()
 export class DeleteReviewUseCase {
   constructor(
+    @Inject('IWorkshopRepository')
     private readonly workshopRepository: IWorkshopRepository,
+    @Inject('IReviewRepository')
     private readonly reviewRepository: IReviewRepository,
   ) {}
 

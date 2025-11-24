@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { IReviewRepository } from '../../../domain/repositories';
 import {
   ReviewNotFoundException,
@@ -9,10 +9,12 @@ import { UpdateReviewDto } from '../../dtos/request';
 import { ReviewDto } from '../../dtos/response';
 import { ReviewMapper } from '../../mappers';
 
-
 @Injectable()
 export class UpdateReviewUseCase {
-  constructor(private readonly reviewRepository: IReviewRepository) {}
+  constructor(
+    @Inject('IReviewRepository')
+    private readonly reviewRepository: IReviewRepository,
+  ) {}
 
   async execute(
     workshopId: string,
@@ -66,8 +68,6 @@ export class UpdateReviewUseCase {
     );
 
     const updatedReview = await this.reviewRepository.save(review);
-
-
 
     return ReviewMapper.toDto(updatedReview);
   }

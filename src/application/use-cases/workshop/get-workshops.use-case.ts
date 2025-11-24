@@ -1,12 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { IWorkshopRepository, WorkshopFilters } from '../../../domain/repositories';
 import { PaginatedWorkshopsDto } from '../../dtos/response';
 import { WorkshopMapper } from '../../mappers';
 
-
 @Injectable()
 export class GetWorkshopsUseCase {
-  constructor(private readonly workshopRepository: IWorkshopRepository) {}
+  constructor(
+    @Inject('IWorkshopRepository')
+    private readonly workshopRepository: IWorkshopRepository,
+  ) {}
 
   async execute(
     page: number = 1,
@@ -22,8 +24,8 @@ export class GetWorkshopsUseCase {
     if (limit > 100) limit = 100;
 
     const filters: WorkshopFilters = {
-      isApproved: true, 
-      isActive: true, 
+      isApproved: true,
+      isActive: true,
     };
 
     if (minRating !== undefined) {

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { IWorkshopRepository } from '../../../domain/repositories';
 import {
   WorkshopNotFoundException,
@@ -12,10 +12,12 @@ import { WorkshopSpecialtyDto } from '../../dtos/response';
 import { SpecialtyMapper } from '../../mappers';
 import { v4 as uuidv4 } from 'uuid';
 
-
 @Injectable()
 export class AddSpecialtyUseCase {
-  constructor(private readonly workshopRepository: IWorkshopRepository) {}
+  constructor(
+    @Inject('IWorkshopRepository')
+    private readonly workshopRepository: IWorkshopRepository,
+  ) {}
 
   async execute(
     workshopId: string,

@@ -1,13 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { IWorkshopRepository, WorkshopFilters } from '../../../domain/repositories';
 import { Coordinates } from '../../../domain/value-objects';
 import { WorkshopDto } from '../../dtos/response';
 import { WorkshopMapper } from '../../mappers';
 
-
 @Injectable()
 export class SearchNearbyWorkshopsUseCase {
-  constructor(private readonly workshopRepository: IWorkshopRepository) {}
+  constructor(
+    @Inject('IWorkshopRepository')
+    private readonly workshopRepository: IWorkshopRepository,
+  ) {}
 
   async execute(
     latitude: number,
@@ -17,9 +19,6 @@ export class SearchNearbyWorkshopsUseCase {
     priceRange?: string,
     specialtyType?: string,
   ): Promise<WorkshopDto[]> {
-    if (radiusKm < 0.5) radiusKm = 0.5;
-    if (radiusKm > 50) radiusKm = 50;
-
     const coordinates = Coordinates.create(latitude, longitude);
 
     const filters: WorkshopFilters = {

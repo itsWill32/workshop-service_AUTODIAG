@@ -1,14 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { IWorkshopRepository, IReviewRepository } from '../../../domain/repositories';
 import { WorkshopNotFoundException } from '../../../domain/exceptions';
 import { WorkshopDetailDto } from '../../dtos/response';
 import { WorkshopMapper } from '../../mappers';
 
-
 @Injectable()
 export class GetWorkshopByIdUseCase {
   constructor(
+    @Inject('IWorkshopRepository')
     private readonly workshopRepository: IWorkshopRepository,
+    @Inject('IReviewRepository')
     private readonly reviewRepository: IReviewRepository,
   ) {}
 

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { IWorkshopRepository } from '../../../domain/repositories';
 import { Workshop } from '../../../domain/entities';
 import {
@@ -14,7 +14,10 @@ import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class CreateWorkshopUseCase {
-  constructor(private readonly workshopRepository: IWorkshopRepository) {}
+  constructor(
+    @Inject('IWorkshopRepository')
+    private readonly workshopRepository: IWorkshopRepository,
+  ) {}
 
   async execute(ownerId: string, dto: CreateWorkshopDto): Promise<WorkshopDto> {
     const existingCount = await this.workshopRepository.countByOwnerId(ownerId);
