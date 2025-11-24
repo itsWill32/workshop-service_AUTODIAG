@@ -7,31 +7,29 @@ import {
 } from '../../../domain/repositories/review.repository.interface';
 import { Review } from '../../../domain/entities';
 
-
 @Injectable()
 export class PrismaReviewRepository implements IReviewRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-
   async save(review: Review): Promise<Review> {
     const data = {
-      workshop_id: review.getWorkshopId(),
-      user_id: review.getUserId(),
-      user_name: review.getUserName(),
-      user_avatar: review.getUserAvatar(),
-      appointment_id: review.getAppointmentId(),
-      overall_rating: review.getOverallRating(),
-      quality_rating: review.getQualityRating(),
-      price_rating: review.getPriceRating(),
-      time_compliance_rating: review.getTimeComplianceRating(),
-      customer_service_rating: review.getCustomerServiceRating(),
+      workshopId: review.getWorkshopId(),
+      userId: review.getUserId(),
+      userName: review.getUserName(),
+      userAvatar: review.getUserAvatar(),
+      appointmentId: review.getAppointmentId(),
+      overallRating: review.getOverallRating(),
+      qualityRating: review.getQualityRating(),
+      priceRating: review.getPriceRating(),
+      timeComplianceRating: review.getTimeComplianceRating(),
+      customerServiceRating: review.getCustomerServiceRating(),
       comment: review.getComment(),
-      sentiment_label: review.getSentimentLabel(),
-      sentiment_score: review.getSentimentScore(),
-      workshop_response: review.getWorkshopResponse(),
-      responded_at: review.getRespondedAt(),
-      is_verified: review.getIsVerified(),
-      updated_at: new Date(),
+      sentimentLabel: review.getSentimentLabel(),
+      sentimentScore: review.getSentimentScore(),
+      workshopResponse: review.getWorkshopResponse(),
+      respondedAt: review.getRespondedAt(),
+      isVerified: review.getIsVerified(),
+      updatedAt: new Date(),
     };
 
     const savedReview = await this.prisma.review.upsert({
@@ -39,7 +37,7 @@ export class PrismaReviewRepository implements IReviewRepository {
       create: {
         id: review.getId(),
         ...data,
-        created_at: review.getCreatedAt(),
+        createdAt: review.getCreatedAt(),
       },
       update: data,
     });
@@ -66,7 +64,6 @@ export class PrismaReviewRepository implements IReviewRepository {
       savedReview.updatedAt,
     );
   }
-
 
   async findById(id: string): Promise<Review | null> {
     const review = await this.prisma.review.findUnique({
@@ -100,13 +97,11 @@ export class PrismaReviewRepository implements IReviewRepository {
     );
   }
 
-
   async delete(id: string): Promise<void> {
     await this.prisma.review.delete({
       where: { id },
     });
   }
-
 
   async findByWorkshopId(
     workshopId: string,
@@ -121,25 +116,25 @@ export class PrismaReviewRepository implements IReviewRepository {
   }> {
     const skip = (page - 1) * limit;
 
-    let orderBy: any = { created_at: 'desc' }; 
+    let orderBy: any = { createdAt: 'desc' };
 
     if (sortBy === ReviewSortBy.RATING_HIGH) {
-      orderBy = { overall_rating: 'desc' };
+      orderBy = { overallRating: 'desc' };
     } else if (sortBy === ReviewSortBy.RATING_LOW) {
-      orderBy = { overall_rating: 'asc' };
+      orderBy = { overallRating: 'asc' };
     } else if (sortBy === ReviewSortBy.HELPFUL) {
-      orderBy = { created_at: 'desc' };
+      orderBy = { createdAt: 'desc' };
     }
 
     const [reviews, total] = await Promise.all([
       this.prisma.review.findMany({
-        where: { workshop_id: workshopId },
+        where: { workshopId },
         skip,
         take: limit,
         orderBy,
       }),
       this.prisma.review.count({
-        where: { workshop_id: workshopId },
+        where: { workshopId },
       }),
     ]);
 
@@ -173,11 +168,10 @@ export class PrismaReviewRepository implements IReviewRepository {
     };
   }
 
-
   async findByUserId(userId: string): Promise<Review[]> {
     const reviews = await this.prisma.review.findMany({
-      where: { user_id: userId },
-      orderBy: { created_at: 'desc' },
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
     });
 
     return reviews.map((r) =>
@@ -207,7 +201,7 @@ export class PrismaReviewRepository implements IReviewRepository {
 
   async findByAppointmentId(appointmentId: string): Promise<Review | null> {
     const review = await this.prisma.review.findFirst({
-      where: { appointment_id: appointmentId },
+      where: { appointmentId },
     });
 
     if (!review) {
@@ -237,26 +231,23 @@ export class PrismaReviewRepository implements IReviewRepository {
     );
   }
 
-
   async existsForAppointment(appointmentId: string): Promise<boolean> {
     const count = await this.prisma.review.count({
-      where: { appointment_id: appointmentId },
+      where: { appointmentId },
     });
 
     return count > 0;
   }
 
-
   async countByWorkshopId(workshopId: string): Promise<number> {
     return this.prisma.review.count({
-      where: { workshop_id: workshopId },
+      where: { workshopId },
     });
   }
 
-
   async getReviewStatistics(workshopId: string): Promise<ReviewStatistics> {
     const reviews = await this.prisma.review.findMany({
-      where: { workshop_id: workshopId },
+      where: { workshopId },
     });
 
     const totalReviews = reviews.length;
@@ -290,13 +281,15 @@ export class PrismaReviewRepository implements IReviewRepository {
     const qualityRatings = reviews.filter((r) => r.qualityRating !== null);
     const averageQuality =
       qualityRatings.length > 0
-        ? qualityRatings.reduce((sum, r) => sum + r.qualityRating!, 0) / qualityRatings.length
+        ? qualityRatings.reduce((sum, r) => sum + r.qualityRating!, 0) /
+          qualityRatings.length
         : 0;
 
     const priceRatings = reviews.filter((r) => r.priceRating !== null);
     const averagePrice =
       priceRatings.length > 0
-        ? priceRatings.reduce((sum, r) => sum + r.priceRating!, 0) / priceRatings.length
+        ? priceRatings.reduce((sum, r) => sum + r.priceRating!, 0) /
+          priceRatings.length
         : 0;
 
     const timeRatings = reviews.filter((r) => r.timeComplianceRating !== null);
@@ -306,7 +299,9 @@ export class PrismaReviewRepository implements IReviewRepository {
           timeRatings.length
         : 0;
 
-    const serviceRatings = reviews.filter((r) => r.customerServiceRating !== null);
+    const serviceRatings = reviews.filter(
+      (r) => r.customerServiceRating !== null,
+    );
     const averageCustomerService =
       serviceRatings.length > 0
         ? serviceRatings.reduce((sum, r) => sum + r.customerServiceRating!, 0) /
@@ -329,7 +324,7 @@ export class PrismaReviewRepository implements IReviewRepository {
 
     return {
       totalReviews,
-      averageOverall: Math.round(averageOverall * 10) / 10, 
+      averageOverall: Math.round(averageOverall * 10) / 10,
       averageQuality: Math.round(averageQuality * 10) / 10,
       averagePrice: Math.round(averagePrice * 10) / 10,
       averageTimeCompliance: Math.round(averageTimeCompliance * 10) / 10,
@@ -339,15 +334,14 @@ export class PrismaReviewRepository implements IReviewRepository {
     };
   }
 
-
   async findPendingSentimentAnalysis(limit: number): Promise<Review[]> {
     const reviews = await this.prisma.review.findMany({
       where: {
         comment: { not: null },
-        sentiment_label: null,
+        sentimentLabel: null,
       },
       take: limit,
-      orderBy: { created_at: 'asc' },
+      orderBy: { createdAt: 'asc' },
     });
 
     return reviews.map((r) =>

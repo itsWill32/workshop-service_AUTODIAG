@@ -10,15 +10,14 @@ import {
   WorkshopSchedule,
 } from '../../../domain/entities';
 
-
 @Injectable()
 export class PrismaWorkshopRepository implements IWorkshopRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async save(workshop: Workshop): Promise<Workshop> {
     const data = {
-      owner_id: workshop.getOwnerId(),
-      business_name: workshop.getBusinessName(),
+      ownerId: workshop.getOwnerId(),
+      businessName: workshop.getBusinessName(),
       description: workshop.getDescription(),
       phone: workshop.getPhone(),
       email: workshop.getEmail(),
@@ -26,17 +25,17 @@ export class PrismaWorkshopRepository implements IWorkshopRepository {
       street: workshop.getStreet(),
       city: workshop.getCity(),
       state: workshop.getState(),
-      zip_code: workshop.getZipCode(),
+      zipCode: workshop.getZipCode(),
       country: workshop.getCountry(),
       latitude: workshop.getLatitude(),
       longitude: workshop.getLongitude(),
-      price_range: workshop.getPriceRange(),
-      overall_rating: workshop.getOverallRating(),
-      total_reviews: workshop.getTotalReviews(),
-      photo_urls: workshop.getPhotoUrls(),
-      is_approved: workshop.getIsApproved(),
-      is_active: workshop.getIsActive(),
-      updated_at: new Date(),
+      priceRange: workshop.getPriceRange(),
+      overallRating: workshop.getOverallRating(),
+      totalReviews: workshop.getTotalReviews(),
+      photoUrls: workshop.getPhotoUrls(),
+      isApproved: workshop.getIsApproved(),
+      isActive: workshop.getIsActive(),
+      updatedAt: new Date(),
     };
 
     const savedWorkshop = await this.prisma.workshop.upsert({
@@ -44,7 +43,7 @@ export class PrismaWorkshopRepository implements IWorkshopRepository {
       create: {
         id: workshop.getId(),
         ...data,
-        created_at: workshop.getCreatedAt(),
+        createdAt: workshop.getCreatedAt(),
       },
       update: data,
     });
@@ -74,7 +73,6 @@ export class PrismaWorkshopRepository implements IWorkshopRepository {
       savedWorkshop.updatedAt,
     );
   }
-
 
   async findById(id: string): Promise<Workshop | null> {
     const workshop = await this.prisma.workshop.findUnique({
@@ -111,11 +109,10 @@ export class PrismaWorkshopRepository implements IWorkshopRepository {
     );
   }
 
-
   async findByOwnerId(ownerId: string): Promise<Workshop[]> {
     const workshops = await this.prisma.workshop.findMany({
-      where: { owner_id: ownerId },
-      orderBy: { created_at: 'desc' },
+      where: { ownerId },
+      orderBy: { createdAt: 'desc' },
     });
 
     return workshops.map((w) =>
@@ -146,7 +143,6 @@ export class PrismaWorkshopRepository implements IWorkshopRepository {
     );
   }
 
-
   async findAll(
     page: number,
     limit: number,
@@ -163,19 +159,19 @@ export class PrismaWorkshopRepository implements IWorkshopRepository {
 
     if (filters) {
       if (filters.isApproved !== undefined) {
-        where.is_approved = filters.isApproved;
+        where.isApproved = filters.isApproved;
       }
 
       if (filters.isActive !== undefined) {
-        where.is_active = filters.isActive;
+        where.isActive = filters.isActive;
       }
 
       if (filters.minRating !== undefined) {
-        where.overall_rating = { gte: filters.minRating };
+        where.overallRating = { gte: filters.minRating };
       }
 
       if (filters.priceRange) {
-        where.price_range = filters.priceRange;
+        where.priceRange = filters.priceRange;
       }
 
       if (filters.city) {
@@ -189,7 +185,7 @@ export class PrismaWorkshopRepository implements IWorkshopRepository {
       if (filters.specialtyType) {
         where.specialties = {
           some: {
-            specialty_type: filters.specialtyType,
+            specialtyType: filters.specialtyType,
           },
         };
       }
@@ -200,7 +196,7 @@ export class PrismaWorkshopRepository implements IWorkshopRepository {
         where,
         skip,
         take: limit,
-        orderBy: { overall_rating: 'desc' },
+        orderBy: { overallRating: 'desc' },
       }),
       this.prisma.workshop.count({ where }),
     ]);
@@ -238,7 +234,6 @@ export class PrismaWorkshopRepository implements IWorkshopRepository {
     };
   }
 
-
   async findNearby(
     coordinates: any,
     radiusKm: number,
@@ -251,25 +246,25 @@ export class PrismaWorkshopRepository implements IWorkshopRepository {
 
     if (filters) {
       if (filters.isApproved !== undefined) {
-        where.is_approved = filters.isApproved;
+        where.isApproved = filters.isApproved;
       }
 
       if (filters.isActive !== undefined) {
-        where.is_active = filters.isActive;
+        where.isActive = filters.isActive;
       }
 
       if (filters.minRating !== undefined) {
-        where.overall_rating = { gte: filters.minRating };
+        where.overallRating = { gte: filters.minRating };
       }
 
       if (filters.priceRange) {
-        where.price_range = filters.priceRange;
+        where.priceRange = filters.priceRange;
       }
 
       if (filters.specialtyType) {
         where.specialties = {
           some: {
-            specialty_type: filters.specialtyType,
+            specialtyType: filters.specialtyType,
           },
         };
       }
@@ -277,11 +272,16 @@ export class PrismaWorkshopRepository implements IWorkshopRepository {
 
     const workshops = await this.prisma.workshop.findMany({
       where,
-      orderBy: { overall_rating: 'desc' },
+      orderBy: { overallRating: 'desc' },
     });
 
     const nearbyWorkshops = workshops.filter((w) => {
-      const distance = this.calculateDistance(lat, lng, w.latitude, w.longitude);
+      const distance = this.calculateDistance(
+        lat,
+        lng,
+        w.latitude,
+        w.longitude,
+      );
       return distance <= radiusKm;
     });
 
@@ -313,29 +313,29 @@ export class PrismaWorkshopRepository implements IWorkshopRepository {
     );
   }
 
-
   async delete(id: string): Promise<void> {
     await this.prisma.workshop.delete({
       where: { id },
     });
   }
 
-
   async countByOwnerId(ownerId: string): Promise<number> {
     return this.prisma.workshop.count({
-      where: { owner_id: ownerId },
+      where: { ownerId },
     });
   }
 
-  async addSpecialty(specialty: WorkshopSpecialty): Promise<WorkshopSpecialty> {
+  async addSpecialty(
+    specialty: WorkshopSpecialty,
+  ): Promise<WorkshopSpecialty> {
     const savedSpecialty = await this.prisma.workshopSpecialty.create({
       data: {
         id: specialty.getId(),
-        workshop_id: specialty.getWorkshopId(),
-        specialty_type: specialty.getSpecialtyType(),
+        workshopId: specialty.getWorkshopId(),
+        specialtyType: specialty.getSpecialtyType(),
         description: specialty.getDescription(),
-        years_of_experience: specialty.getYearsOfExperience(),
-        created_at: specialty.getCreatedAt(),
+        yearsOfExperience: specialty.getYearsOfExperience(),
+        createdAt: specialty.getCreatedAt(),
       },
     });
 
@@ -349,9 +349,11 @@ export class PrismaWorkshopRepository implements IWorkshopRepository {
     );
   }
 
-  async findSpecialtiesByWorkshopId(workshopId: string): Promise<WorkshopSpecialty[]> {
+  async findSpecialtiesByWorkshopId(
+    workshopId: string,
+  ): Promise<WorkshopSpecialty[]> {
     const specialties = await this.prisma.workshopSpecialty.findMany({
-      where: { workshopId: workshopId },
+      where: { workshopId },
       orderBy: { createdAt: 'desc' },
     });
 
@@ -367,8 +369,9 @@ export class PrismaWorkshopRepository implements IWorkshopRepository {
     );
   }
 
-
-  async findSpecialtyById(specialtyId: string): Promise<WorkshopSpecialty | null> {
+  async findSpecialtyById(
+    specialtyId: string,
+  ): Promise<WorkshopSpecialty | null> {
     const specialty = await this.prisma.workshopSpecialty.findUnique({
       where: { id: specialtyId },
     });
@@ -387,8 +390,10 @@ export class PrismaWorkshopRepository implements IWorkshopRepository {
     );
   }
 
-
-  async existsSpecialty(workshopId: string, specialtyType: string): Promise<boolean> {
+  async existsSpecialty(
+    workshopId: string,
+    specialtyType: string,
+  ): Promise<boolean> {
     const count = await this.prisma.workshopSpecialty.count({
       where: {
         workshopId,
@@ -405,7 +410,6 @@ export class PrismaWorkshopRepository implements IWorkshopRepository {
     });
   }
 
-
   async saveSchedules(
     workshopId: string,
     schedules: WorkshopSchedule[],
@@ -419,11 +423,11 @@ export class PrismaWorkshopRepository implements IWorkshopRepository {
         prisma.workshopSchedule.create({
           data: {
             id: schedule.getId(),
-            workshopId: schedule.getWorkshopId(),      
-            dayOfWeek: schedule.getDayOfWeek(),        
-            openTime: schedule.getOpenTime(),          
-            closeTime: schedule.getCloseTime(),        
-            isClosed: schedule.getIsClosed(),          
+            workshopId: schedule.getWorkshopId(),
+            dayOfWeek: schedule.getDayOfWeek(),
+            openTime: schedule.getOpenTime(),
+            closeTime: schedule.getCloseTime(),
+            isClosed: schedule.getIsClosed(),
           },
         }),
       );
@@ -443,7 +447,9 @@ export class PrismaWorkshopRepository implements IWorkshopRepository {
     );
   }
 
-  async findSchedulesByWorkshopId(workshopId: string): Promise<WorkshopSchedule[]> {
+  async findSchedulesByWorkshopId(
+    workshopId: string,
+  ): Promise<WorkshopSchedule[]> {
     const schedules = await this.prisma.workshopSchedule.findMany({
       where: { workshopId },
     });
@@ -467,8 +473,8 @@ export class PrismaWorkshopRepository implements IWorkshopRepository {
     const schedule = await this.prisma.workshopSchedule.findUnique({
       where: {
         workshopId_dayOfWeek: {
-          workshopId: workshopId,
-          dayOfWeek: dayOfWeek,
+          workshopId,
+          dayOfWeek,
         },
       },
     });
@@ -489,10 +495,9 @@ export class PrismaWorkshopRepository implements IWorkshopRepository {
 
   async deleteSchedulesByWorkshopId(workshopId: string): Promise<void> {
     await this.prisma.workshopSchedule.deleteMany({
-      where: { workshopId }, 
+      where: { workshopId },
     });
   }
-
 
   private calculateDistance(
     lat1: number,
@@ -500,7 +505,7 @@ export class PrismaWorkshopRepository implements IWorkshopRepository {
     lat2: number,
     lon2: number,
   ): number {
-    const R = 6371; 
+    const R = 6371;
     const dLat = this.toRad(lat2 - lat1);
     const dLon = this.toRad(lon2 - lon1);
 
