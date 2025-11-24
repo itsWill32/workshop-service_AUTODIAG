@@ -21,7 +21,7 @@ export class PrismaService
       await this.$connect();
       console.log('BD conectada correctamente');
     } catch (error) {
-      console.error(' Error de conexión a la BD:', error);
+      console.error('Error de conexión a la BD:', error);
       throw error;
     }
   }
@@ -34,10 +34,10 @@ export class PrismaService
 
   async cleanDatabase(): Promise<void> {
     if (process.env.NODE_ENV === 'production') {
-      throw new Error('Cannot clean database in production');
+      throw new Error('No puede limpiar la base de datos en producción');
     }
 
-    const tablenames = await this.$queryRaw<{ tablename: string }[]>`
+    const tablenames = await this.$queryRaw<Array<{ tablename: string }>>`
       SELECT tablename 
       FROM pg_tables 
       WHERE schemaname='workshop'
@@ -50,21 +50,14 @@ export class PrismaService
             `TRUNCATE TABLE "workshop"."${tablename}" CASCADE;`,
           );
         } catch (error) {
-          console.log(`Error truncating ${tablename}:`, error);
+          console.log(` Error  truncating ${tablename}:`, error);
         }
       }
     }
   }
 
 
-  async executeInTransaction<T>(
-    callback: (
-      prisma: Omit
-        PrismaClient,
-        '$connect' | '$disconnect' | '$on' | '$transaction' | '$use'
-      >,
-    ) => Promise<T>,
-  ): Promise<T> {
+  async executeInTransaction<T>(callback: (prisma: PrismaClient) => Promise<T>): Promise<T> {
     return this.$transaction(callback);
   }
 }
