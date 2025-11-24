@@ -1,12 +1,17 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 
-
 @Injectable()
-export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
+export class PrismaService
+  extends PrismaClient
+  implements OnModuleInit, OnModuleDestroy
+{
   constructor() {
     super({
-      log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+      log:
+        process.env.NODE_ENV === 'development'
+          ? ['query', 'error', 'warn']
+          : ['error'],
       errorFormat: 'colorless',
     });
   }
@@ -23,7 +28,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
 
   async onModuleDestroy() {
     await this.$disconnect();
-    console.log('Desconectada de la BD');
+    console.log('🔌 Desconectada de la BD');
   }
 
 
@@ -32,14 +37,18 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
       throw new Error('Cannot clean database in production');
     }
 
-    const tablenames = await this.$queryRaw
-      Array<{ tablename: string }>
-    >`SELECT tablename FROM pg_tables WHERE schemaname='workshop'`;
+    const tablenames = await this.$queryRaw<{ tablename: string }[]>`
+      SELECT tablename 
+      FROM pg_tables 
+      WHERE schemaname='workshop'
+    `;
 
     for (const { tablename } of tablenames) {
       if (tablename !== '_prisma_migrations') {
         try {
-          await this.$executeRawUnsafe(`TRUNCATE TABLE "workshop"."${tablename}" CASCADE;`);
+          await this.$executeRawUnsafe(
+            `TRUNCATE TABLE "workshop"."${tablename}" CASCADE;`,
+          );
         } catch (error) {
           console.log(`Error truncating ${tablename}:`, error);
         }
@@ -49,7 +58,12 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
 
 
   async executeInTransaction<T>(
-    callback: (prisma: Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use'>) => Promise<T>,
+    callback: (
+      prisma: Omit
+        PrismaClient,
+        '$connect' | '$disconnect' | '$on' | '$transaction' | '$use'
+      >,
+    ) => Promise<T>,
   ): Promise<T> {
     return this.$transaction(callback);
   }
