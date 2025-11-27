@@ -8,6 +8,7 @@ import {
   InvalidPhoneException,
   InvalidEmailException,
   WorkshopAlreadyApprovedException,
+  WorkshopAlreadyRejectedException,
   WorkshopInactiveException,
 } from '../exceptions/workshop.exceptions';
 
@@ -209,6 +210,15 @@ export class Workshop {
     }
 
     this.isApproved = true;
+    this.updatedAt = new Date();
+  }
+
+  reject(): void {
+    if (!this.isApproved) {
+      throw new WorkshopAlreadyRejectedException(this.id);
+    }
+
+    this.isApproved = false;
     this.updatedAt = new Date();
   }
 

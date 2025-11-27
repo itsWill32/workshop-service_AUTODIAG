@@ -42,6 +42,8 @@ import {
   UpdateWorkshopUseCase,
   DeleteWorkshopUseCase,
   SearchNearbyWorkshopsUseCase,
+  ApproveWorkshopUseCase,
+  RejectWorkshopUseCase,
 } from '../../../application/use-cases';
 
 
@@ -56,6 +58,8 @@ export class WorkshopsController {
     private readonly updateWorkshopUseCase: UpdateWorkshopUseCase,
     private readonly deleteWorkshopUseCase: DeleteWorkshopUseCase,
     private readonly searchNearbyWorkshopsUseCase: SearchNearbyWorkshopsUseCase,
+    private readonly approveWorkshopUseCase: ApproveWorkshopUseCase,
+    private readonly rejectWorkshopUseCase: RejectWorkshopUseCase,
   ) {}
 
 
@@ -146,7 +150,7 @@ export class WorkshopsController {
   @Post()
   @Roles('WORKSHOP_ADMIN')
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Registrar nuevo taller (solo WORKSHOP_ADMIN)' })
+  @ApiOperation({ summary: 'Registrar nuevo taller ' })
   @ApiResponse({
     status: 201,
     description: 'Taller creado exitosamente',
@@ -154,7 +158,7 @@ export class WorkshopsController {
   })
   @ApiResponse({ status: 400, description: 'Datos inválidos' })
   @ApiResponse({ status: 401, description: 'No autenticado' })
-  @ApiResponse({ status: 403, description: 'No autorizado - requiere rol WORKSHOP_ADMIN' })
+  @ApiResponse({ status: 403, description: 'No autorizado - requiere rol ----' })
   async createWorkshop(
     @Body() createWorkshopDto: CreateWorkshopDto,
     @GetUser('userId') ownerId: string,
@@ -244,4 +248,103 @@ export class WorkshopsController {
       message: 'Photo upload endpoint - to be implemented with Cloudinary integration',
     };
   }
+
+
+  @Get('admin/pending')
+  @Roles('SYSTEM_ADMIN')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Listar talleres pendientes de aprobación (solo admin)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de talleres pendientes',
+    type: PaginatedWorkshopsDto,
+  })
+  @ApiResponse({ status: 403, description: 'Solo administradores' })
+  async getPendingWorkshops(): Promise<PaginatedWorkshopsDto> {
+    const result = await this.getWorkshopsUseCase['workshopRepository'].findAll(
+      1,
+      100,
+      { isApproved: false, isActive: true }
+    );
+
+    return {
+      workshops: result.workshops.map((w) => ({
+        id: w.getId(),
+        ownerId: w.getOwnerId(),
+        businessName: w.getBusinessName(),
+        description: w.getDescription(),
+        phone: w.getPhone(),
+        email: w.getEmail(),
+        website: w.getWebsite(),
+        street: w.getStreet(),
+        city: w.getCity(),
+        state: w.getState(),
+        zipCode: w.getZipCode(),
+        country: w.getCountry(),
+        latitude: w.getLatitude(),
+        longitude: w.getLongitude(),
+        priceRange: w.getPriceRange(),
+        overallRating: w.getOverallRating(),
+        totalReviews: w.getTotalReviews(),
+        photoUrls: w.getPhotoUrls(),
+        isApproved: w.getIsApproved(),
+        isActive: w.getIsActive(),        
+        createdAt: w.getCreatedAt(),
+        updatedAt: w.getUpdatedAt(),      
+      })),
+      pagination: {
+        currentPage: result.page,
+        totalPages: result.totalPages,
+        totalItems: result.total,
+        itemsPerPage: 100,
+      },
+    };
+  }
+
+
+  @Patch(':id/approve')
+  @Roles('SYSTEM_ADMIN')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Aprobar taller (solo admin)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Taller aprobado exitosamente',
+  })
+  @ApiResponse({ status: 403, description: 'Solo administradores' })
+  @ApiResponse({ status: 404, description: 'Taller no encontrado' })
+  async approveWorkshop(
+    @Param('id', ParseUUIDPipe) id: string,
+    @GetUser('userId') adminUserId: string,
+  ): Promise<{ message: string; workshopId: string }> {
+    await this.approveWorkshopUseCase.execute(id, adminUserId);
+
+    return {
+      message: 'Taller aprobado exitosamente',
+      workshopId: id,
+    };
+  }
+
+
+  @Patch(':id/reject')
+  @Roles('SYSTEM_ADMIN')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Rechazar taller (solo admin)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Taller rechazado exitosamente',
+  })
+  @ApiResponse({ status: 403, description: 'Solo administradores' })
+  @ApiResponse({ status: 404, description: 'Taller no encontrado' })
+  async rejectWorkshop(
+    @Param('id', ParseUUIDPipe) id: string,
+    @GetUser('userId') adminUserId: string,
+  ): Promise<{ message: string; workshopId: string }> {
+    await this.rejectWorkshopUseCase.execute(id, adminUserId);
+
+    return {
+      message: 'Taller rechazado exitosamente',
+      workshopId: id,
+    };
+  }
 }
+

@@ -17,6 +17,8 @@ import {
   UpdateWorkshopUseCase,
   DeleteWorkshopUseCase,
   SearchNearbyWorkshopsUseCase,
+  ApproveWorkshopUseCase,  
+  RejectWorkshopUseCase,   
 } from '../../application/use-cases/workshop';
 
 import {
@@ -60,14 +62,14 @@ import { AuthModule } from './auth.module';
       useClass: PrismaReviewRepository,
     },
 
-
-
     CreateWorkshopUseCase,
     GetWorkshopsUseCase,
     GetWorkshopByIdUseCase,
     UpdateWorkshopUseCase,
     DeleteWorkshopUseCase,
     SearchNearbyWorkshopsUseCase,
+    ApproveWorkshopUseCase,  
+    RejectWorkshopUseCase,   
 
     AddSpecialtyUseCase,
     GetSpecialtiesUseCase,

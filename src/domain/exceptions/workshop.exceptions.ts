@@ -82,3 +82,9 @@ export class WorkshopInactiveException extends WorkshopDomainException {
     super(`El taller ${workshopId} está inactivo`);
   }
 }
+
+export class WorkshopAlreadyRejectedException extends WorkshopDomainException {
+  constructor(workshopId: string) {
+    super(`El taller ${workshopId} ya está rechazado/desaprobado`);
+  }
+}
