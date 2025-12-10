@@ -57,7 +57,7 @@ export class ReviewsController {
     private readonly respondToReviewUseCase: RespondToReviewUseCase,
     @Inject('IReviewRepository')
     private readonly reviewRepository: IReviewRepository,
-  ) {}
+  ) { }
 
   @Public()
   @Get()
@@ -116,10 +116,13 @@ export class ReviewsController {
     @Body() createReviewDto: CreateReviewDto,
     @GetUser() user: JwtPayload,
   ): Promise<ReviewDto> {
+    // Obtener userName del DTO si existe, si no del JWT token
+    const userName = createReviewDto.userName || user.fullName || user.email || 'Usuario';
+
     return this.createReviewUseCase.execute(
       workshopId,
       user.userId,
-      user.fullName || user.email || 'Usuario',
+      userName,
       null,
       createReviewDto,
     );

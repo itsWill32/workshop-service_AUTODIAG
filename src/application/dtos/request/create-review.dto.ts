@@ -65,6 +65,14 @@ export class RatingBreakdownDto {
 
 
 export class CreateReviewDto {
+  @ApiPropertyOptional({
+    example: 'Juan Pérez',
+    description: 'Nombre completo del usuario (opcional, se puede enviar desde el cliente)',
+  })
+  @IsOptional()
+  @IsString()
+  userName?: string;
+
   @ApiProperty({
     description: 'ID de la cita completada',
     example: '123e4567-e89b-12d3-a456-426614174000',
