@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsInt, Min, Max, IsOptional, MaxLength, MinLength, IsUUID } from 'class-validator';
+import { IsString, IsNotEmpty, IsInt, Min, Max, IsOptional, MaxLength, MinLength, IsUUID, ValidateNested } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 
@@ -77,7 +77,9 @@ export class CreateReviewDto {
     description: 'Calificaciones del servicio',
     type: RatingBreakdownDto,
   })
+  @ValidateNested()
   @Type(() => RatingBreakdownDto)
+  @IsNotEmpty()
   rating: RatingBreakdownDto;
 
   @ApiPropertyOptional({
