@@ -119,7 +119,7 @@ export class ReviewsController {
     return this.createReviewUseCase.execute(
       workshopId,
       user.userId,
-      user.fullName,
+      user.fullName || user.email || 'Usuario',
       null,
       createReviewDto,
     );
