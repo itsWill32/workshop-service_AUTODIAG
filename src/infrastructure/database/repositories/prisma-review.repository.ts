@@ -12,12 +12,8 @@ export class PrismaReviewRepository implements IReviewRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async save(review: Review): Promise<Review> {
-    const data = {
-      workshopId: review.getWorkshopId(),
-      userId: review.getUserId(),
-      userName: review.getUserName(),
-      userAvatar: review.getUserAvatar(),
-      appointmentId: review.getAppointmentId(),
+    // Campos que pueden actualizarse
+    const updateData = {
       overallRating: review.getOverallRating(),
       qualityRating: review.getQualityRating(),
       priceRating: review.getPriceRating(),
@@ -32,14 +28,22 @@ export class PrismaReviewRepository implements IReviewRepository {
       updatedAt: new Date(),
     };
 
+    // Campos inmutables que solo se setean al crear
+    const createData = {
+      id: review.getId(),
+      workshopId: review.getWorkshopId(),
+      userId: review.getUserId(),
+      userName: review.getUserName(),
+      userAvatar: review.getUserAvatar(),
+      appointmentId: review.getAppointmentId(),
+      createdAt: review.getCreatedAt(),
+      ...updateData,
+    };
+
     const savedReview = await this.prisma.review.upsert({
       where: { id: review.getId() },
-      create: {
-        id: review.getId(),
-        ...data,
-        createdAt: review.getCreatedAt(),
-      },
-      update: data,
+      create: createData,
+      update: updateData,
     });
 
     return Review.fromPrimitives(
